@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leason_generator", "0002_rename_created_at_lessonplan_created_and_more"),
+        ("lesson_generator", "0002_rename_created_at_lessonplan_created_and_more"),
     ]
 
     operations = [

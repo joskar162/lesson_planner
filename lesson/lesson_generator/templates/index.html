@@ -19,7 +19,11 @@
         <label for="teacher_actions">Teacher actions (optional):</label>
         <textarea id="teacher_actions" name="teacher_actions" rows="4" placeholder="Describe what the teacher will do during activities (e.g. 'Model step-by-step, ask guiding questions')."></textarea>
 
-        <button type="submit" class="btn">Generate Lesson Plan</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="submit" name="generate" class="btn">Generate Lesson Plan</button>
+          <button type="submit" name="download_pdf" class="btn">Generate & Download PDF</button>
+          <button type="submit" name="download_docx" class="btn">Generate & Download DOCX</button>
+        </div>
     </form>
 
     {% if lesson_plan %}
@@ -31,6 +35,15 @@
             </div>
         </div>
         <pre>{{ lesson_plan }}</pre>
+        <div style="margin-top:10px;">
+          {% if lesson_plan_id %}
+            <a class="btn small" href="{% url 'lesson_pdf' lesson_plan_id %}" download="lessonplan_{{ lesson_plan_id }}.pdf" target="_blank" rel="noopener">Download as PDF</a>
+            <a class="btn small" href="{% url 'lesson_docx' lesson_plan_id %}" download="lessonplan_{{ lesson_plan_id }}.docx" target="_blank" rel="noopener">Download as DOCX</a>
+          {% else %}
+            <!-- If no id available, offer instructions -->
+            <p>If you'd like a PDF, save the plan then use the download button next to a saved plan.</p>
+          {% endif %}
+        </div>
     </div>
     {% endif %}
 
@@ -45,6 +58,10 @@
           <strong>{{ lp.subject }} — {{ lp.topic }}</strong>
           <pre>{{ lp.content }}</pre>
           <small>Saved: {{ lp.created }}</small>
+          <div style="margin-top:6px;">
+            <a class="btn small" href="{% url 'lesson_pdf' lp.id %}" download="lessonplan_{{ lp.id }}.pdf" target="_blank" rel="noopener">Download PDF</a>
+            <a class="btn small" href="{% url 'lesson_docx' lp.id %}" download="lessonplan_{{ lp.id }}.docx" target="_blank" rel="noopener">Download DOCX</a>
+          </div>
         </div>
       {% empty %}
         <p>No saved plans yet.</p>

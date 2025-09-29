@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class LeasonGeneratorConfig(AppConfig):
+class LessonGeneratorConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "leason_generator"
+    name = "lesson_generator"
