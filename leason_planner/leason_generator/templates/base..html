@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="text-align: center; max-width: 600px;">
+    <div style="padding: 40px 20px;">
+        <h1 style="color: #2c3e50; margin-bottom: 20px; font-size: 2.5em;">Welcome to Lesson Planner!</h1>
+        <p style="font-size: 1.2em; line-height: 1.6; color: #555; margin-bottom: 30px;">
+            This system helps teachers generate lesson plans and schemes of work easily.<br>
+            Register or login to start creating your own lesson plans and schemes of work.<br>
+            Enjoy a simple, fast, and attractive experience!
+        </p>
+        <a href="{% url 'register' %}" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #27ae60, #219150); color: white; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); transition: all 0.3s ease;">Get Started</a>
+    </div>
+</div>
+{% endblock %}

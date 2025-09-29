@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Generate Lesson Plan</h2>
+    <form id="generate-form" method="post">
+        {% csrf_token %}
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required>
+
+        <label for="grade">Grade/form:</label>
+        <input type="text" id="grade" name="grade" required>
+
+        <label for="topic">Topic:</label>
+        <input type="text" id="topic" name="topic" required>
+
+        <label for="duration">Duration (minutes):</label>
+        <input type="number" id="duration" name="duration" required>
+
+        <label for="teacher_actions">Teacher actions (optional):</label>
+        <textarea id="teacher_actions" name="teacher_actions" rows="4" placeholder="Describe what the teacher will do during activities (e.g. 'Model step-by-step, ask guiding questions')."></textarea>
+
+        <button type="submit" class="btn">Generate Lesson Plan</button>
+    </form>
+
+    {% if lesson_plan %}
+    <div class="lesson-plan output">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Generated Lesson Plan</h3>
+            <div>
+              <button id="copy-plan" class="btn small" type="button">Copy</button>
+            </div>
+        </div>
+        <pre>{{ lesson_plan }}</pre>
+    </div>
+    {% endif %}
+
+    <hr>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3>Your recent lesson plans</h3>
+      <button class="toggle-recent btn small" data-target="recent-list">Hide recent plans</button>
+    </div>
+    <div id="recent-list">
+      {% for lp in recent_plans %}
+        <div class="output">
+          <strong>{{ lp.subject }} — {{ lp.topic }}</strong>
+          <pre>{{ lp.content }}</pre>
+          <small>Saved: {{ lp.created }}</small>
+        </div>
+      {% empty %}
+        <p>No saved plans yet.</p>
+      {% endfor %}
+    </div>
+</div>
+{% endblock %}

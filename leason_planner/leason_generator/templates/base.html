@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Lesson Planner</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+    <nav>
+        <a href="{% url 'welcome' %}">Home</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'home' %}">Dashboard</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+        <!-- Theme toggle -->
+        <button id="theme-toggle" class="btn small" aria-label="Toggle theme">🌙</button>
+    </nav>
+</header>
+
+<div class="container">
+    {% if messages %}
+      <div id="server-msg" style="display:none;">
+        {% for message in messages %}{{ message }}{% endfor %}
+      </div>
+    {% endif %}
+    <div id="toast-container" aria-live="polite"></div>
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

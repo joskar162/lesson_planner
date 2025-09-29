@@ -1,0 +1,231 @@
+/* Base */
+body{
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background:#f4f8fb;
+  margin:0;
+  padding:0;
+  color: #f31717; /* darker default text */
+  line-height: 1.6;
+}
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
+
+/* Header / nav */
+header {
+    background: #2d2e2d;
+    padding: 10px 0;
+    color: white;
+    text-align: center;
+}
+nav a {
+    margin-right:12px;
+    color:#ffffff;
+    text-decoration:none;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+nav a:hover { background: rgba(255,255,255,0.06); }
+
+/* Titles */
+h1, h2 {
+    text-align: center;
+    color: #f50e0e; /* readable dark title */
+    margin: 18px 0;
+}
+
+/* Form inputs */
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+    color: #f5f1f1;
+}
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    box-sizing: border-box;
+    color: #0f0909;
+}
+
+/* Buttons */
+button, .btn {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
+}
+button:hover, .btn:hover { background: #1f8a4a; }
+
+/* small button */
+.btn.small { padding:6px 10px; font-size:13px; border-radius:6px; }
+
+/* spinner used in submit button */
+.spinner {
+  display:inline-block;
+  width:14px;
+  height:14px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-left-color: #fff;
+  border-radius:50%;
+  vertical-align:middle;
+  margin-right:8px;
+  animation: spin .9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Output / generated lesson plan */
+.output, .lesson-plan {
+    margin-top: 30px;
+    padding: 22px;
+    background: var(--card);     /* uses light or dark card color */
+    color: var(--text);          /* uses readable text color for current theme */
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* make preformatted content readable in both themes */
+.output pre,
+#recent-list pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    color: var(--text);          /* important: use theme text color */
+    background: transparent;
+    margin: 12px 0 0 0;
+    padding: 0;
+    line-height: 1.6;
+    opacity: 1;                  /* ensure not faded */
+}
+
+/* headings, strong, small text inside cards */
+.output h3,
+.output strong,
+.output small {
+    color: var(--text);
+}
+
+/* ensure recent list visible in dark */
+#recent-list {
+    transition: max-height .3s ease;
+    max-height: 1000px; /* default expanded max */
+    overflow: visible;
+}
+
+/* collapsed state */
+#recent-list.collapsed {
+    max-height: 0;
+    overflow: hidden;
+}
+
+/* subtle darker card shadow in dark mode */
+.dark .output, .dark .lesson-plan {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    border-color: rgba(255,255,255,0.04);
+}
+
+/* Recent plans area */
+hr { border: none; border-top: 1px solid rgba(0,0,0,0.06); margin: 28px 0; }
+.output strong { color: #222; display:block; margin-bottom:8px; font-size:16px; }
+
+/* Small screens */
+@media (max-width:600px){
+  .container{ padding:14px; margin:18px auto; }
+  button, .btn { width:100%; }
+}
+
+/* Dark theme basic */
+:root { --bg: #f4f8fb; --text: #222; --card: #fff; }
+.dark { --bg: #121212; --text: #e6e6e6; --card: #1d1d1d; }
+body { background: var(--bg); color: var(--text); }
+.output, .lesson-plan { background: var(--card); color: var(--text); }
+
+/* Theme variables (controls inputs, labels, placeholders, buttons) */
+:root {
+  --bg: #f4f8fb;
+  --text: #222;
+  --card: #fff;
+
+  --input-bg: #ffffff;
+  --input-text: #111111;
+  --input-border: #cccccc;
+  --input-placeholder: #9aa3aa;
+  --label-color: #333333;
+
+  --btn-bg: #27ae60;
+  --btn-text: #ffffff;
+  --focus-ring: rgba(39,174,96,0.18);
+}
+
+.dark {
+  --bg: #121212;
+  --text: #e6e6e6;
+  --card: #1d1d1d;
+
+  --input-bg: #222222;
+  --input-text: #e6e6e6;
+  --input-border: #3a3a3a;
+  --input-placeholder: #9e9e9e;
+  --label-color: #cfcfcf;
+
+  --btn-bg: #2fb86a;
+  --btn-text: #0b0b0b;
+  --focus-ring: rgba(47,184,106,0.12);
+}
+
+/* apply root colors */
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background .25s ease, color .25s ease;
+}
+
+/* labels */
+label {
+  color: var(--label-color);
+  transition: color .20s ease;
+}
+
+/* inputs and textarea adapt to theme */
+input, textarea, select {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  transition: background .20s ease, color .20s ease, border-color .20s ease, box-shadow .20s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* placeholder color */
+input::placeholder, textarea::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
+  transition: color .20s ease;
+}
+
+/* focus style */
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 0 4px var(--focus-ring);
+  border-color: var(--btn-bg);
+}
+
+/* buttons adapt to variables */
+button, .btn {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  transition: background .15s ease, color .15s ease;
+}

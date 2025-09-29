@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="text-align:center; padding:40px;">
+    <h1>Welcome to Lesson Planner!</h1>
+    <p style="font-size:1.2em;">
+        This system helps teachers generate lesson plans and schemes of work easily.<br>
+        Register or login to start creating your own lesson plans and schemes of work.<br>
+        Enjoy a simple, fast, and attractive experience!
+    </p>
+    <a href="{% url 'register' %}" class="btn">Get Started</a>
+</div>
+{% endblock %}

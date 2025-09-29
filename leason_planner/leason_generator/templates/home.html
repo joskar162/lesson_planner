@@ -1,0 +1,12 @@
+{% load static %}
+{% extends 'base.html' %}
+{% block content %}
+  {% if user.is_authenticated %}
+    <h2>Welcome, {{ user.username }}!</h2>
+    <p>Ready to generate a lesson plan?</p>
+    <a href="{% url 'generate' %}">Generate Lesson Plan</a>
+  {% else %}
+    <h2>Welcome, Guest!</h2>
+    <p>Please <a href="{% url 'login' %}">login</a> to continue.</p>
+  {% endif %}
+{% endblock %}
