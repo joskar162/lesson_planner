@@ -19,6 +19,9 @@
         <label for="teacher_actions">Teacher actions (optional):</label>
         <textarea id="teacher_actions" name="teacher_actions" rows="4" placeholder="Describe what the teacher will do during activities (e.g. 'Model step-by-step, ask guiding questions')."></textarea>
 
+  <label for="student_requirements">Student requirements (optional):</label>
+  <textarea id="student_requirements" name="student_requirements" rows="3" placeholder="List any materials or pre-knowledge students need (e.g. 'Calculator, basic multiplication skills').">{{ student_requirements }}</textarea>
+
         <div style="display:flex; gap:8px; align-items:center;">
           <button type="submit" name="generate" class="btn">Generate Lesson Plan</button>
           <button type="submit" name="download_pdf" class="btn">Generate & Download PDF</button>
@@ -34,46 +37,7 @@
               <button id="copy-plan" class="btn small" type="button">Copy</button>
             </div>
         </div>
-        <pre id="generated-pre" style="display:none">{{ lesson_plan }}</pre>
-        <div id="react-root" data-plan="{{ lesson_plan|escapejs }}"></div>
-        <!-- Minimal React widget (no build step) -->
-        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <script type="text/babel">
-          const e = React.createElement;
-
-          function PlanViewer(props) {
-            const [copied, setCopied] = React.useState(false);
-            const plan = props.plan || '';
-
-            function copyText() {
-              navigator.clipboard.writeText(plan).then(()=>{
-                setCopied(true);
-                setTimeout(()=>setCopied(false),2000);
-              });
-            }
-
-            return (
-              <div>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                  <h3>Generated Lesson Plan (React)</h3>
-                  <div>
-                    <button className="btn small" onClick={copyText}>{copied ? 'Copied' : 'Copy'}</button>
-                  </div>
-                </div>
-                <pre style={{whiteSpace:'pre-wrap', fontFamily:'monospace'}}>{plan}</pre>
-              </div>
-            );
-          }
-
-          (function mount(){
-            const root = document.getElementById('react-root');
-            if(!root) return;
-            const raw = root.dataset.plan || '';
-            ReactDOM.createRoot(root).render(React.createElement(PlanViewer, {plan: raw}));
-          })();
-        </script>
+        <pre id="generated-pre" style="white-space:pre-wrap; font-family:monospace">{{ lesson_plan }}</pre>
         <div style="margin-top:10px;">
           {% if lesson_plan_id %}
             <a class="btn small" href="{% url 'lesson_pdf' lesson_plan_id %}" download="lessonplan_{{ lesson_plan_id }}.pdf" target="_blank" rel="noopener">Download as PDF</a>

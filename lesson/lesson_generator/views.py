@@ -6,6 +6,98 @@ from .forms import RegisterForm
 from .models import LessonPlan
 from django.http import HttpResponse, Http404
 import io
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.utils import timezone
+from .models import PasswordResetCode
+from django.contrib.auth.models import User
+
+
+def infer_student_requirements(topic: str) -> str:
+    """Return a short suggested list of student requirements based on the topic."""
+    if not topic:
+        return ""
+    t = topic.lower()
+    # Simple keyword-based inference. Expand as needed.
+    if "geometry" in t or "shapes" in t or "angle" in t or "triang" in t:
+        return "Ruler, protractor, compass, calculator"
+    if "algebra" in t or "equation" in t or "express" in t:
+        return "Scientific calculator, algebraic notation familiarity"
+    if "fractions" in t or "decimal" in t:
+        return "Basic multiplication/division skills, fraction strips (optional)"
+    if "probability" in t or "statistics" in t:
+        return "Dice/coins or sample data, calculator"
+    if "python" in t or "program" in t or "coding" in t:
+        return "Laptop with Python installed or access to an online REPL, basic typing skills"
+    if "binar" in t or "binary" in t:
+        return "Paper and pencil for conversions, basic understanding of place value"
+    if "chemistry" in t or "experiment" in t or "lab" in t:
+        return "Lab coat, safety goggles, basic lab safety knowledge"
+    if "history" in t or "geography" in t:
+        return "Map or timeline materials, prior knowledge of relevant events"
+    # default
+    return "Basic classroom materials (notebook, pen), any prior prerequisite knowledge stated in unit overview"
+
+
+def _generate_code():
+    return get_random_string(20)
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, 'No account found with that email address.')
+            return render(request, 'forgot_password.html')
+
+        code = _generate_code()
+        PasswordResetCode.objects.create(user=user, code=code)
+
+        # Send email (console backend in dev will print to console)
+        subject = 'Your lesson planner password reset code'
+        message = f'Use this code to reset your password: {code}\nOr follow the link: {request.build_absolute_uri("/reset-password/")}'
+        send_mail(subject, message, None, [email], fail_silently=True)
+
+        messages.success(request, 'A reset code has been sent to your email (check console in development).')
+        return redirect('login')
+    return render(request, 'forgot_password.html')
+
+
+def reset_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        code = request.POST.get('code', '').strip()
+        new_password = request.POST.get('new_password', '').strip()
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid email or code.')
+            return render(request, 'reset_password.html')
+
+        try:
+            prc = PasswordResetCode.objects.filter(user=user, code=code).latest('created')
+        except PasswordResetCode.DoesNotExist:
+            messages.error(request, 'Invalid code.')
+            return render(request, 'reset_password.html')
+
+        # Optionally expire codes after some time
+        if timezone.now() - prc.created > timezone.timedelta(hours=1):
+            messages.error(request, 'Code expired.')
+            return render(request, 'reset_password.html')
+
+        if not new_password:
+            messages.error(request, 'Enter a new password.')
+            return render(request, 'reset_password.html')
+
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, 'Password reset successful. You can now log in.')
+        return redirect('login')
+
+    return render(request, 'reset_password.html')
 
 
 def _make_pdf_bytes(text: str) -> bytes:
@@ -64,16 +156,65 @@ def _make_docx_bytes(text: str, lp=None) -> bytes:
     buffer.seek(0)
     return buffer.getvalue()
 
+
+def _infer_student_requirements(topic: str) -> str:
+    """Return a short string listing suggested student requirements based on topic keywords.
+
+    This is a simple heuristic: match keywords in the topic to common supplies/knowledge.
+    Extend this mapping as needed.
+    """
+    if not topic:
+        return ''
+    t = topic.lower()
+    suggestions = []
+    mapping = {
+        'geometry': ['ruler', 'protractor', 'compass', 'mathematical set'],
+        'algebra': ['calculator', 'pen', 'notebook'],
+        'calculus': ['graphing calculator', 'notebook'],
+        'statistics': ['calculator', 'spreadsheet (optional)'],
+        'chemistry': ['safety goggles', 'lab coat', 'gloves'],
+        'physics': ['calculator', 'meter stick', 'stopwatch'],
+        'biology': ['lab coat', 'gloves', 'microscope (if available)'],
+        'english': ['textbook', 'notebook', 'pen'],
+        'history': ['textbook', 'timeline handout'],
+        'art': ['pencils', 'eraser', 'colours', 'paper'],
+        'music': ['instrument (if applicable)'],
+        'programming': ['laptop', 'internet access'],
+        'computer': ['laptop', 'internet access'],
+        'math': ['calculator', 'notebook', 'pencil'],
+    }
+    for key, items in mapping.items():
+        if key in t:
+            suggestions.extend(items)
+
+    # If none matched, provide a short generic suggestion
+    if not suggestions:
+        return 'Basic stationery (pen/pencil, notebook)'
+    # deduplicate while preserving order
+    seen = set()
+    dedup = []
+    for s in suggestions:
+        if s not in seen:
+            dedup.append(s)
+            seen.add(s)
+    return ', '.join(dedup)
+
 @login_required
 def index(request):
     lesson_plan_text = None
     lesson_plan_id = None
+    # ensure these locals exist for GET requests
+    topic = ''
+    student_requirements = ''
+    teacher_actions = ''
+    duration_int = None
     if request.method == "POST":
         subject = request.POST.get("subject", "").strip()
         grade = request.POST.get("grade", "").strip()
         topic = request.POST.get("topic", "").strip()
         duration = request.POST.get("duration", "").strip()
         teacher_actions = request.POST.get("teacher_actions", "").strip()
+        student_requirements = request.POST.get("student_requirements", "").strip()
 
         if not (subject and grade and topic and duration):
             messages.error(request, "All fields are required.")
@@ -94,7 +235,8 @@ def index(request):
                     "Objective:\n"
                     f"- Students will learn the basics of {topic}.\n\n"
                     "Materials:\n"
-                    "- Whiteboard, markers, worksheets.\n\n"
+                    "- Whiteboard, markers, worksheets.\n"
+                    f"- Student requirements: {student_requirements or 'None specified.'}\n\n"
                     "Activities (with teacher actions):\n"
                     "1. Introduction (10 min): Hook + objectives.\n"
                     f"   Teacher actions: {teacher_actions or 'Introduce topic, set objectives.'}\n\n"
@@ -118,6 +260,7 @@ def index(request):
                     duration=duration_int,
                     content=lesson_plan_text,
                     teacher_actions=teacher_actions,
+                    student_requirements=student_requirements,
                 )
                 lesson_plan_id = lp.id
                 messages.success(request, "Lesson plan generated and saved.")
@@ -156,7 +299,9 @@ def index(request):
                         return response
 
     recent_plans = LessonPlan.objects.filter(user=request.user).order_by("-created")[:10]
-    return render(request, "index.html", {"lesson_plan": lesson_plan_text, "recent_plans": recent_plans, "lesson_plan_id": lesson_plan_id})
+    # If student_requirements wasn't provided, infer from topic for display
+    display_student_requirements = student_requirements if (student_requirements is not None and student_requirements != '') else (infer_student_requirements(topic) if topic else '')
+    return render(request, "index.html", {"lesson_plan": lesson_plan_text, "recent_plans": recent_plans, "lesson_plan_id": lesson_plan_id, "student_requirements": display_student_requirements})
 
 def welcome(request):
     return render(request, 'welcome.html')

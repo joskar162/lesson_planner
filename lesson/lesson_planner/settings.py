@@ -88,7 +88,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE ="UTC"
 
 USE_I18N = True
 
@@ -107,7 +107,7 @@ STATICFILES_DIRS = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-    "DIRS": [BASE_DIR / "lesson_generator" / "templates"],  # <-- Add this line
+    "DIRS": [BASE_DIR / "lesson_generator" / "templates"],  
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

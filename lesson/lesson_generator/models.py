@@ -9,7 +9,17 @@ class LessonPlan(models.Model):
     duration = models.PositiveIntegerField()
     content = models.TextField()
     teacher_actions = models.TextField(blank=True)  # new optional field
+    student_requirements = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.subject} — {self.topic} ({self.created:%Y-%m-%d %H:%M})"
+
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    code = models.CharField(max_length=32)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reset code for {self.user} at {self.created}"
